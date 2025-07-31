@@ -6,6 +6,7 @@ It is made on visual studio with the help of react.js.The application show us a 
 TECH STACK-
 1- React.js
 2-HTML
+3-Tailwind.css
 
 It's Feature-
 * attractive website
