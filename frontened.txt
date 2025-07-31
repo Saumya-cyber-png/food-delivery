@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodExpress - Fast Food Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --dark: #292f36;
+            --light: #f7fff7;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--dark);
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                        url('https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/182906510/original/a69a2d36061750a4ad76632245e9ec50453191d9/do-modern-food-express-restaurant-kitchen-logo-design.jpg') no-repeat center center;
+            background-size: cover;
+            height: 60vh;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .cart-item-animate {
+            animation: cartBounce 0.5s ease;
+        }
+        
+        @keyframes cartBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Authentication modal */
+        .auth-modal {
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .auth-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/182906510/original/a69a2d36061750a4ad76632245e9ec50453191d9/do-modern-food-express-restaurant-kitchen-logo-design.jpg" alt="FoodExpress logo with fork and knife icon" class="h-10">
+                <span class="text-xl font-bold text-red-500">FoodExpress</span>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-gray-700 hover:text-red-500">Home</a>
+                <a href="#" class="text-gray-700 hover:text-red-500">Restaurants</a>
+                <a href="#" class="text-gray-700 hover:text-red-500">Offers</a>
+                <a href="#" class="text-gray-700 hover:text-red-500">My Orders</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="cartBtn" class="text-gray-700 hover:text-red-500">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span id="cartCount" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">0</span>
+                    </button>
+                    
+                    <!-- Cart Dropdown -->
+                    <div id="cartDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg p-4 z-50">
+                        <h3 class="text-lg font-semibold mb-3">Your Cart</h3>
+                        <div id="cartItems" class="max-h-60 overflow-y-auto">
+                            <!-- Cart items will be added here -->
+                            <p class="text-gray-500 text-center py-4">Your cart is empty</p>
+                        </div>
+                        <div id="cartTotal" class="mt-4 border-t pt-3 hidden">
+                            <div class="flex justify-between font-semibold">
+                                <span>Total:</span>
+                                <span id="totalAmount">$0.00</span>
+                            </div>
+                            <button id="checkoutBtn" class="w-full mt-4 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition">Checkout</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="authBtn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">Login</button>
+                
+                <button id="mobileMenuBtn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg py-2 px-4">
+            <a href="#" class="block py-2 text-gray-700 hover:text-red-500">Home</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-red-500">Restaurants</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-red-500">Offers</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-red-500">My Orders</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section flex flex-col justify-center items-center text-white">
+        <div class="text-center px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Delicious Food Delivered Fast</h1>
+            <p class="text-xl mb-8">Order from your favorite restaurants and enjoy fresh meals at home</p>
+            
+            <!-- Search Bar -->
+            <div class="relative max-w-2xl mx-auto">
+                <input type="text" placeholder="Search for restaurants or food..." class="w-full py-3 px-6 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <button class="absolute right-2 top-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Food Categories -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6">Food Categories</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div class="category-item bg-white rounded-lg shadow-md p-4 text-center cursor-pointer hover:shadow-lg transition">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <img src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_366/RX_THUMBNAIL/IMAGES/VENDOR/2025/4/15/ecf35bbc-ccd6-4449-8b65-69e988ead904_984070.jpg" alt="Burger icon" class="w-10 h-10">
+                    </div>
+                    <h3 class="text-sm font-medium">Burgers</h3>
+                </div>
+                <div class="category-item bg-white rounded-lg shadow-md p-4 text-center cursor-pointer hover:shadow-lg transition">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <img src="https://content.jdmagicbox.com/v2/comp/allahabad/i8/0532px532.x532.190622180226.f8i8/catalogue/usa-pizza-phaphamau-allahabad-pizza-outlets-bVUU4wbCpA.jpg" alt="Pizza icon" class="w-10 h-10">
+                    </div>
+                    <h3 class="text-sm font-medium">Pizza</h3>
+                </div>
+                <div class="category-item bg-white rounded-lg shadow-md p-4 text-center cursor-pointer hover:shadow-lg transition">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <img src="https://www.justonecookbook.com/wp-content/uploads/2020/01/Sushi-Rolls-Maki-Sushi-%E2%80%93-Hosomaki-1117-I.jpg" alt="Sushi icon" class="w-10 h-10">
+                    </div>
+                    <h3 class="text-sm font-medium">Sushi</h3>
+                </div>
+                <div class="category-item bg-white rounded-lg shadow-md p-4 text-center cursor-pointer hover:shadow-lg transition">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <img src="https://nutritionrefined.com/wp-content/uploads/2023/08/homemade-garden-salad-featured.jpg" alt="Salad icon" class="w-10 h-10">
+                    </div>
+                    <h3 class="text-sm font-medium">Salad</h3>
+                </div>
+                <div class="category-item bg-white rounded-lg shadow-md p-4 text-center cursor-pointer hover:shadow-lg transition">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Desserts.jpg" alt="Dessert icon" class="w-10 h-10">
+                    </div>
+                    <h3 class="text-sm font-medium">Desserts</h3>
+                </div>
+                <div class="category-item bg-white rounded-lg shadow-md p-4 text-center cursor-pointer hover:shadow-lg transition">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT6-DG3Zk9NOdTScEjRdHUyA5TMmvbbVhMSQ&s" alt="Drink icon" class="w-10 h-10">
+                    </div>
+                    <h3 class="text-sm font-medium">Drinks</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Restaurants -->
+        <section class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Popular Restaurants</h2>
+                <a href="#" class="text-red-500 hover:underline">View All</a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Restaurant cards will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Menu Items -->
+        <section id="menuSection" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Recommended for You</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border rounded-full text-xs">Filters</button>
+                    <button class="px-3 py-1 border rounded-full text-xs">Sort</button>
+                </div>
+            </div>
+            
+            <div id="menuItems" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Menu items will be dynamically added here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">FoodExpress</h3>
+                    <p class="text-gray-400">Fastest food delivery service in town. Order now and enjoy delicious meals!</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Help Center</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">FAQs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-gray-400">Download our app</p>
+                        <div class="flex space-x-2 mt-2">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS17Dlfop0XoXj0yd3Q_B_io3z4W6koxAOpYg&s" alt="App Store badge" class="h-10">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/1280px-Google_Play_Store_badge_EN.svg.png" alt="Google Play badge" class="h-10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 FoodExpress. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal -->
+    <div id="authModal" class="auth-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Login / Register</h3>
+                <button id="closeAuthModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="authTabs" class="mb-4 border-b border-gray-200">
+                <button class="auth-tab active px-4 py-2 font-medium text-red-500 border-b-2 border-red-500">Login</button>
+                <button class="auth-tab px-4 py-2 font-medium text-gray-500">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="loginPassword" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-red-500">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="rememberMe" class="h-4 w-4 text-red-500 focus:ring-red-500 border-gray-300 rounded">
+                        <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm text-red-500 hover:underline">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition">Login</button>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="registerForm" class="space-y-4 hidden">
+                <div>
+                    <label for="registerName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="registerName" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="registerEmail" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="registerPassword" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="registerConfirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-red-500">
+                </div>
+                <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition">Register</button>
+            </form>
+            
+            <div class="mt-4 text-center text-sm">
+                <p>By continuing, you agree to our <a href="#" class="text-red-500 hover:underline">Terms</a> and <a href="#" class="text-red-500 hover:underline">Privacy Policy</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="orderModal" class="auth-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Order Placed Successfully!</h3>
+                <p class="text-gray-600 mb-6">Your food will be delivered soon.</p>
+                <div id="orderDetails" class="text-left mb-6">
+                    <!-- Order details will be added here -->
+                </div>
+                <button id="closeOrderModal" class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition">Continue Shopping</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backend Simulation Script -->
+    <script>
+        // Mock database
+        const mockDatabase = {
+            users: [
+                { id: 1, name: "John Doe", email: "john@example.com", password: "password123" }
+            ],
+            restaurants: [
+                {
+                    id: 1,
+                    name: "Burger King",
+                    cuisine: "American",
+                    rating: 4.2,
+                    deliveryTime: "20-30 min",
+                    minOrder: 15,
+                    image: "burger.jpeg",
+                    items: [
+                        { id: 101, name: "Whopper", price: 5.99, description: "Flame-grilled beef patty with lettuce, tomatoes, mayo on a sesame seed bun", image: "whopper.jpeg" },
+                        { id: 103, name: "Chicken Fries", price: 4.49, description: "Crispy chicken fries with dipping sauce", image:"chicken.jpeg" }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: "Pizza Hut",
+                    cuisine: "Italian",
+                    rating: 4.5,
+                    deliveryTime: "30-45 min",
+                    minOrder: 20,
+                    image: "download.jpg",
+                    items: [
+                        { id: 201, name: "Pepperoni Pizza", price: 12.99, description: "Classic pizza with pepperoni and mozzarella", image: "pepporani pizza.jpeg" },
+                        { id: 202, name: "Margherita Pizza", price: 10.99, description: "Tomato sauce, mozzarella and basil", image: "margharita.jpeg" },
+                        { id: 203, name: "Garlic Bread", price: 3.99, description: "Warm garlic bread with herb butter", image: "garlic bread.jpeg" }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: "Sushi Palace",
+                    cuisine: "Japanese",
+                    rating: 4.7,
+                    deliveryTime: "25-40 min",
+                    minOrder: 25,
+                    image: "download.jpeg",
+                    items: [
+                        { id: 301, name: "California Roll", price: 8.99, description: "Crab, avocado and cucumber roll", image: "california roll.jpeg" },
+                        { id: 302, name: "Salmon Nigiri", price: 6.99, description: "Two pieces of fresh salmon nigiri", image: "salmon.jpeg" },
+                        { id: 303, name: "Miso Soup", price: 2.99, description: "Traditional Japanese miso soup", image: "soup.jpeg" }
+                    ]
+                }
+            ],
+            orders: []
+        };
+
+        // Current user state
+        let currentUser = null;
+        let cart = [];
+        
+        // DOM Elements
+        const menuItemsContainer = document.getElementById('menuItems');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartCountElement = document.getElementById('cartCount');
+        const cartDropdown = document.getElementById('cartDropdown');
+        const cartTotal = document.getElementById('cartTotal');
+        const totalAmountElement = document.getElementById('totalAmount');
+        const authBtn = document.getElementById('authBtn');
+        const authModal = document.getElementById('authModal');
+        const closeAuthModal = document.getElementById('closeAuthModal');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const orderModal = document.getElementById('orderModal');
+        const closeOrderModal = document.getElementById('closeOrderModal');
+        const orderDetails = document.getElementById('orderDetails');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const cartBtn = document.getElementById('cartBtn');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRestaurants();
+            loadPopularItems();
+            
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            authBtn.addEventListener('click', openAuthModal);
+            closeAuthModal.addEventListener('click', closeModal);
+            authTabs.forEach(tab => tab.addEventListener('click', switchAuthTab));
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            cartBtn.addEventListener('click', toggleCartDropdown);
+            checkoutBtn.addEventListener('click', placeOrder);
+            closeOrderModal.addEventListener('click', closeOrderModalHandler);
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!cartDropdown.contains(e.target) && !cartBtn.contains(e.target)) {
+                    cartDropdown.classList.add('hidden');
+                }
+            });
+        });
+
+        // Functions
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        function loadRestaurants() {
+            const restaurantsContainer = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3');
+            
+            mockDatabase.restaurants.forEach(restaurant => {
+                const restaurantCard = document.createElement('div');
+                restaurantCard.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+                restaurantCard.innerHTML = `
+                    <img src="${restaurant.image}" alt="${restaurant.name} restaurant exterior" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-semibold">${restaurant.name}</h3>
+                            <span class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                                <i class="fas fa-star mr-1"></i> ${restaurant.rating}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">${restaurant.cuisine} â€¢ ${restaurant.deliveryTime} â€¢ Min $${restaurant.minOrder}</p>
+                        <button class="view-menu-btn mt-3 text-red-500 text-sm font-medium hover:underline" data-restaurant-id="${restaurant.id}">View Menu</button>
+                    </div>
+                `;
+                restaurantsContainer.appendChild(restaurantCard);
+            });
+            
+            // Add event listeners to view menu buttons
+            document.querySelectorAll('.view-menu-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const restaurantId = parseInt(this.getAttribute('data-restaurant-id'));
+                    loadRestaurantMenu(restaurantId);
+                });
+            });
+        }
+
+        function loadPopularItems() {
+            // Get all items from all restaurants
+            const allItems = [];
+            mockDatabase.restaurants.forEach(restaurant => {
+                restaurant.items.forEach(item => {
+                    allItems.push({...item, restaurantId: restaurant.id});
+                });
+            });
+            
+            // Sort by some criteria (price for demo)
+            const popularItems = allItems.sort((a, b) => b.price - a.price).slice(0, 8);
+            
+            // Display popular items
+            popularItems.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'food-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 cursor-pointer';
+                menuItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.name} dish" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-1">${item.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">$${item.price.toFixed(2)}</p>
+                        <p class="text-gray-500 text-xs mb-3">${item.description}</p>
+                        <button class="add-to-cart-btn w-full bg-red-500 text-white py-1 rounded-md hover:bg-red-600 transition" data-item-id="${item.id}" data-restaurant-id="${item.restaurantId}">Add to Cart</button>
+                    </div>
+                `;
+                menuItemsContainer.appendChild(menuItem);
+            });
+            
+            // Add event listeners to add to cart buttons
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!currentUser) {
+                        openAuthModal();
+                        alert('Please login to add items to cart');
+                        return;
+                    }
+                    
+                    const itemId = parseInt(this.getAttribute('data-item-id'));
+                    const restaurantId = parseInt(this.getAttribute('data-restaurant-id'));
+                    addToCart(itemId, restaurantId);
+                });
+            });
+        }
+
+        function loadRestaurantMenu(restaurantId) {
+            const restaurant = mockDatabase.restaurants.find(r => r.id === restaurantId);
+            if (!restaurant) return;
+            
+            // Clear current menu
+            menuItemsContainer.innerHTML = '';
+            
+            // Update section title
+            const menuSectionTitle = document.querySelector('#menuSection h2');
+            menuSectionTitle.textContent = $`{restaurant.name}`; Menu;
+            
+            // Add all menu items
+            restaurant.items.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'food-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 cursor-pointer';
+                menuItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.name} dish" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-1">${item.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">$${item.price.toFixed(2)}</p>
+                        <p class="text-gray-500 text-xs mb-3">${item.description}</p>
+                        <button class="add-to-cart-btn w-full bg-red-500 text-white py-1 rounded-md hover:bg-red-600 transition" data-item-id="${item.id}" data-restaurant-id="${restaurant.id}">Add to Cart</button>
+                    </div>
+                `;
+                menuItemsContainer.appendChild(menuItem);
+            });
+            
+            // Add event listeners to add to cart buttons
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!currentUser) {
+                        openAuthModal();
+                        alert('Please login to add items to cart');
+                        return;
+                    }
+                    
+                    const itemId = parseInt(this.getAttribute('data-item-id'));
+                    const restaurantId = parseInt(this.getAttribute('data-restaurant-id'));
+                    addToCart(itemId, restaurantId);
+                });
+            });
+        }
+
+        function addToCart(itemId, restaurantId) {
+            const restaurant = mockDatabase.restaurants.find(r => r.id === restaurantId);
+            if (!restaurant) return;
+            
+            const item = restaurant.items.find(i => i.id === itemId);
+            if (!item) return;
+            
+            // Check if item already in cart
+            const existingCartItem = cart.find(ci => ci.item.id === item.id);
+            
+            if (existingCartItem) {
+                existingCartItem.quantity += 1;
+            } else {
+                cart.push({
+                    item: {...item, restaurantId: restaurant.id, restaurantName: restaurant.name},
+                    quantity: 1
+                });
+            }
+            
+            updateCartCount();
+            renderCartItems();
+            
+            // Add animation to cart button
+            cartCountElement.classList.add('cart-item-animate');
+            setTimeout(() => {
+                cartCountElement.classList.remove('cart-item-animate');
+            }, 500);
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+        }
+
+        function toggleCartDropdown() {
+            renderCartItems();
+            cartDropdown.classList.toggle('hidden');
+        }
+
+        function renderCartItems() {
+            cartItemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Your cart is empty</p>';
+                cartTotal.classList.add('hidden');
+                return;
+            }
+            
+            cart.forEach((cartItem, index) => {
+                const cartItemElement = document.createElement('div');
+                cartItemElement.className = 'flex justify-between items-center py-3 border-b';
+                cartItemElement.innerHTML = `
+                    <div class="flex items-center">
+                        <img src="${cartItem.item.image}" alt="${cartItem.item.name}" class="w-12 h-12 object-cover rounded mr-3">
+                        <div>
+                            <h4 class="text-sm font-medium">${cartItem.item.name}</h4>
+                            <p class="text-xs text-gray-500">${cartItem.item.restaurantName}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="quantity-btn w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center" data-index="${index}" data-action="decrease">
+                            <i class="fas fa-minus text-xs"></i>
+                        </button>
+                        <span class="mx-2">${cartItem.quantity}</span>
+                        <button class="quantity-btn w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center" data-index="${index}" data-action="increase">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                        <span class="ml-4 text-sm font-medium">$${(cartItem.item.price * cartItem.quantity).toFixed(2)}</span>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(cartItemElement);
+            });
+            
+            // Add event listeners to quantity buttons
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const action = this.getAttribute('data-action');
+                    
+                    updateCartItemQuantity(index, action);
+                });
+            });
+            
+            // Update total
+            const total = cart.reduce((sum, item) => sum + (item.item.price * item.quantity), 0);
+            totalAmountElement.textContent = $$`{total.toFixed(2)}`;
+            cartTotal.classList.remove('hidden');
+        }
+
+        function updateCartItemQuantity(index, action) {
+            if (action === 'increase') {
+                cart[index].quantity += 1;
+            } else if (action === 'decrease') {
+                cart[index].quantity -= 1;
+                
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            
+            updateCartCount();
+            renderCartItems();
+        }
+
+        function calculateCartTotal() {
+            return cart.reduce((sum, item) => sum + (item.item.price * item.quantity), 0);
+        }
+
+        function placeOrder() {
+            if (!currentUser) {
+                alert('Please login to place an order');
+                openAuthModal();
+                return;
+            }
+            
+            if (cart.length === 0) {
+                alert('Your cart is empty');
+                return;
+            }
+            
+            // Create order
+            const order = {
+                id: Date.now(),
+                userId: currentUser.id,
+                items: cart.map(item => ({
+                    id: item.item.id,
+                    name: item.item.name,
+                    price: item.item.price,
+                    quantity: item.quantity,
+                    restaurantId: item.item.restaurantId,
+                    restaurantName: item.item.restaurantName
+                })),
+                total: calculateCartTotal(),
+                status: 'Processing',
+                date: new Date().toISOString()
+            };
+            
+            // Save to mock database
+            mockDatabase.orders.push(order);
+            
+            // Show order confirmation
+            showOrderConfirmation(order);
+            
+            // Clear cart
+            cart = [];
+            updateCartCount();
+            renderCartItems();
+        }
+
+        function showOrderConfirmation(order) {
+            orderDetails.innerHTML = `
+                <div class="mb-2">
+                    <h4 class="font-semibold">Order #${order.id}</h4>
+                    <p class="text-sm">${new Date(order.date).toLocaleString()}</p>
+                </div>
+                <div class="space-y-2 mb-4">
+                    ${order.items.map(item => `
+                        <div class="flex justify-between text-sm">
+                            <span>${item.quantity}x ${item.name}</span>
+                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="border-t pt-2">
+                    <div class="flex justify-between font-semibold">
+                        <span>Total:</span>
+                        <span>$${order.total.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+            
+            orderModal.classList.add('active');
+        }
+
+        function closeOrderModalHandler() {
+            orderModal.classList.remove('active');
+        }
+
+        function openAuthModal() {
+            authModal.classList.add('active');
+        }
+
+        function closeModal() {
+            authModal.classList.remove('active');
+        }
+
+        function switchAuthTab(e) {
+            e.preventDefault();
+            
+            authTabs.forEach(tab => tab.classList.remove('active', 'text-red-500', 'border-b-2', 'border-red-500'));
+            authTabs.forEach(tab => tab.classList.add('text-gray-500'));
+            
+            this.classList.add('active', 'text-red-500', 'border-b-2', 'border-red-500');
+            this.classList.remove('text-gray-500');
+            
+            if (this.textContent === 'Login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simple validation
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Find user in mock database
+            const user = mockDatabase.users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                // Login success
+                currentUser = user;
+                authBtn.textContent = user.name;
+                closeModal();
+                alert('Logged in successfully!');
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            // Simple validation
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Check if user already exists
+            const userExists = mockDatabase.users.some(u => u.email === email);
+            
+            if (userExists) {
+                alert('User with this email already exists');
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                id: mockDatabase.users.length + 1,
+                name,
+                email,
+                password
+            };
+            
+            mockDatabase.users.push(newUser);
+            currentUser = newUser;
+            authBtn.textContent = newUser.name;
+            closeModal();
+            alert('Account created successfully!');
+        }
+    </script>
+</body>
+</html>
