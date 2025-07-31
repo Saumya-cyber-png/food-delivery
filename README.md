@@ -5,9 +5,7 @@ It is made on visual studio with the help of react.js.The application show us a 
 
 TECH STACK-
 1- React.js
-2-CSS
-3-HTML
-4-Java script
+2-HTML
 
 It's Feature-
 * attractive website
